@@ -21,7 +21,7 @@ function Gameboard() {
     const placeMarker = (row, column, player) => {
         var choseCell = board[row][column];
         if (choseCell.getMarker() === "") {
-            choseCell.addMarker(player, row, column);
+            choseCell.addMarker(player, Number(row), Number(column));
         } else {
             console.log("invalid chose");
         }
@@ -41,8 +41,6 @@ function Gameboard() {
         const row0 = filteredCells[0];
         const row1 = filteredCells[1];
         const row2 = filteredCells[2];
-
-        console.log(row0);
 
         // check if any row has length === 3 indicating winner across row
         const checkRow = () => {
@@ -68,27 +66,35 @@ function Gameboard() {
         };
 
         const checkDiagonal = () => {
+
+            const compareArray = (arr1, arr2) => {
+                for (let i = 0; i < arr1.length; i++) {
+                    if (JSON.stringify(arr1[i]) === JSON.stringify(arr2)) {
+                        return true;
+                    }
+                }
+            }
+
             try {
                 // js === comparison is not direct but by references so convert array[0] and diagonal cells to string
                 // then compare and winner is indicated is all three diagonals present
                 // repreat for opposite directional diagonal
 
                 //upper left to lower right cells
-                const isEqual0 = row0.some(cell => JSON.stringify(cell) === JSON.stringify([0,0]));
-                console.log(isEqual0);
-                const isEqual1 = row1.some(cell => JSON.stringify(cell) === JSON.stringify([1,1]));
-                const isEqual2 = row2.some(cell => JSON.stringify(cell) === JSON.stringify([2,2]));
+                const isEqual0 = compareArray(row0, [0,0]);
+                const isEqual1 = compareArray(row1, [1,1]);
+                const isEqual2 = compareArray(row2, [2,2]);
 
                 //upper right to lower left cells
-                const isEqual3 = row0.some(cell => JSON.stringify(cell) === JSON.stringify([0,2]));
-                const isEqual4 = row1.some(cell => JSON.stringify(cell) === JSON.stringify([1,1]));
-                const isEqual5 = row2.some(cell => JSON.stringify(cell) === JSON.stringify([2,0]));
+                const isEqual3 = compareArray(row0, [0,2]);
+                const isEqual4 = compareArray(row1, [1,1]);
+                const isEqual5 = compareArray(row2, [2,0]);
 
                 // return winner if either diagonal is winner
                 if (isEqual0 === true && isEqual1 === true && isEqual2 === true) {
-                    console.log("winner");
+                    winner = true;
                 } else if (isEqual3 === true && isEqual4 === true && isEqual5 === true) {
-                    console.log("winner");
+                    winner = true;
                 }
             } catch (error) {
                 console.log(error);
