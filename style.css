@@ -1,3 +1,46 @@
 body {
     background-color: lightblue;
 }
+
+div {
+    border: 1px solid black;
+}
+
+.wrapper {
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 98vh;
+}
+
+.board_grid {
+    border: none;
+    height: 800px;
+    width: 800px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+}
+
+.cell00, .cell10, .cell20 {
+    border-left: none;
+}
+
+.cell00, .cell01, .cell02 {
+    border-top: none;
+}
+
+.cell02, .cell12, .cell22 {
+    border-right: none;
+}
+
+.cell20, .cell21, .cell22 {
+    border-bottom: none;
+}
+
+.cell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
