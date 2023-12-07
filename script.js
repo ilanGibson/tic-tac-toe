@@ -19,12 +19,17 @@ function Gameboard() {
     // if cell is empty active marker is placed in cell
     // cell coordinates are set based on which row and column are input
     const placeMarker = (row, column, player) => {
-        var choseCell = board[row][column];
-        if (choseCell.getMarker() === "") {
+        // check row and column for valid input
+        if (row <= 2 && column <= 2) {
+            var choseCell = board[row][column];
+            if (choseCell.getMarker() === "") {
             // convert row and column into number so they can be compared later to determine winner
             choseCell.addMarker(player, Number(row), Number(column));
+            } else {
+                console.log("invalid choise so we skipped your turn");
+            }
         } else {
-            console.log("invalid chose");
+            console.log("invalid choice so we skipped your turn");
         }
     };
 
@@ -115,6 +120,14 @@ function Gameboard() {
         return winner;
     };
 
+    // check for tie based on the number of rounds played
+    // return true meaning board is a tie because there are no available plays and neither player won
+    const checkForTie = (rounds) => {
+        if (rounds === 8) {
+            return true;
+        }
+    }
+
     // print board to console
     // only needed until UI is built
     const printBoard = () => {
@@ -122,7 +135,7 @@ function Gameboard() {
         console.log(boardWithCellValues);
       };
 
-    return {placeMarker, checkForWinner, printBoard};
+    return {placeMarker, checkForWinner, checkForTie, printBoard};
 }
 
 // each square on the playing board holds a Cell() obj
@@ -180,17 +193,22 @@ playerOneMarker = "X", playerTwoMarker = "O") {
 
     // start game round
     // call placeMarker and get input for row and column
-    // check for winner after each marker is placed
-    // return true to indicated winner and break out of while loop ending the game
-
-    //switch player turn and print/start new round
-    const playRound = (row, column) => {
+    const playRound = (row, column, round) => {
         board.placeMarker(row, column, getActivePlayer().marker)
 
+        // check for winner after each marker is placed
+        // return true to indicated winner and break out of while loop ending the game
         if (board.checkForWinner(getActivePlayer().marker)) {
+            board.printBoard();
             console.log("WINNER");
             return true;
+        } else if (board.checkForTie(round)) {
+            board.printBoard();
+            console.log("TIE");
+            return;
         }
+
+        // switch player turn each round and print the new board
         switchPlayerTurn();
         printNewRound();
     };
@@ -200,41 +218,48 @@ playerOneMarker = "X", playerTwoMarker = "O") {
 
     return {playRound};
 }
-flag = 0;
+
+
+
+
+
+flag = false;
 // outer loop to keep game going and have the ability to play again
-while (flag < 2) {
-    console.log("check")
-    // runs second time through loop to check if player wants to play again
-    if (flag === 1) {
+ tic_tac_toe: while (true) {
+    // runs after initial loop to check if player wants to play again
+    if (flag) {
+        // enter Y to play again otherwise break out of loop and end game
         let playAgainQuestion = prompt("Would you like to play again Y/N: ");
-        if (playAgainQuestion === "Y") {
-            flag = 0;
-        } else {
-            console.log("Goodbye!")
-            break;
+        if (playAgainQuestion !== "Y" || playAgainQuestion !== "y") {
+            break tic_tac_toe;
         }
     }
 
     // get players names and markers
-    const player1name = prompt("Enter name for player 1: ");
-    const player1marker = prompt("Enter marker symbol for player 1: ");
-    const player2name = prompt("Enter name for player 2: ");
-    const player2marker = prompt("Enter marker symbol for player 2: ");
+    // const player1name = prompt("Enter name for player 1: ");
+    // const player1marker = prompt("Enter marker symbol for player 1: ");
+    // const player2name = prompt("Enter name for player 2: ");
+    // const player2marker = prompt("Enter marker symbol for player 2: ");
 
-    // start new game with user input above
-    const newGame = GameController(player1name, player2name, player1marker, player2marker);
+    // // start new game with user input above
+    // const newGame = GameController(player1name, player2name, player1marker, player2marker);
+    const newGame = GameController();
 
     // inner loop to play individual game and exit when player wins
-    let playAgain = 0;
-    while (playAgain < 8) {
+    let round = 0;
+    individualGame: while (round < 9) {
+        // user input for row and column
         let playerMoveRow = prompt("Enter a row 0 - 2: ");
         let playerMoveColumn = prompt("Enter a column 0 - 2: ");
-        if (newGame.playRound(playerMoveRow, playerMoveColumn)) {
-            playAgain = 9;
+        // check if game is won and break out of inner loop
+        if (newGame.playRound(playerMoveRow, playerMoveColumn, round)) {
+            break individualGame;
         }
-        playAgain ++;
+        round++;
     }
-    flag++;
-
+    flag = true;
 }
 
+
+// to fix
+// check user input for name and marker (no repeats, no empty input)
