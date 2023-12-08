@@ -23,8 +23,8 @@ function Gameboard() {
         if (row <= 2 && column <= 2) {
             var choseCell = board[row][column];
             if (choseCell.getMarker() === "") {
-            // convert row and column into number so they can be compared later to determine winner
-            choseCell.addMarker(player, Number(row), Number(column));
+                // convert row and column into number so they can be compared later to determine winner
+                choseCell.addMarker(player, Number(row), Number(column));
             } else {
                 console.log("invalid choise so we skipped your turn");
             }
@@ -122,20 +122,46 @@ function Gameboard() {
 
     // check for tie based on the number of rounds played
     // return true meaning board is a tie because there are no available plays and neither player won
-    const checkForTie = (rounds) => {
-        if (rounds === 8) {
+    const checkForTie = (marker1, marker2) => {
+        let temp = 0;
+        const filteredCells = board.map(row => {
+            return row.filter(num => (num.getMarker() === marker1 || num.getMarker() === marker2)).map(filteredNum => {
+                temp++;
+            }) 
+        });
+
+        if (temp === 9) {
             return true;
         }
     }
 
-    // print board to console
-    // only needed until UI is built
+    function createBoard(grid) {
+        let row = 0;
+        let column = 0;
+        let board = getBoard();
+        board.forEach(innerArray => {
+                innerArray.forEach(function() {
+                let newDiv = document.createElement("div");
+                newDiv.classList.add("cell");
+                newDiv.classList.add(`cell${row}${column}`);
+                newDiv.setAttribute("row", row);
+                newDiv.setAttribute("column", column);
+                column++;
+                if (column === 3) {
+                    row++;
+                    column = 0;
+                }
+                grid.appendChild(newDiv);
+            });
+        });
+    }
+
     const printBoard = () => {
         const boardWithCellValues = board.map((row) => row.map((cell) => cell.getMarker()))
         console.log(boardWithCellValues);
       };
 
-    return {placeMarker, checkForWinner, checkForTie, printBoard};
+    return {placeMarker, checkForWinner, checkForTie, createBoard, getBoard, printBoard};
 }
 
 // each square on the playing board holds a Cell() obj
@@ -167,6 +193,7 @@ function Cell() {
 function GameController(playerOneName = "Player One", playerTwoName = "Player Two", 
 playerOneMarker = "X", playerTwoMarker = "O") {
     const board = Gameboard();
+    let grid = document.getElementById("board_grid");
 
     const players = [
     {
@@ -193,16 +220,14 @@ playerOneMarker = "X", playerTwoMarker = "O") {
 
     // start game round
     // call placeMarker and get input for row and column
-    const playRound = (row, column, round) => {
-        board.placeMarker(row, column, getActivePlayer().marker)
-
+    const playRound = () => {
         // check for winner after each marker is placed
         // return true to indicated winner and break out of while loop ending the game
         if (board.checkForWinner(getActivePlayer().marker)) {
             board.printBoard();
             console.log("WINNER");
-            return true;
-        } else if (board.checkForTie(round)) {
+            return;
+        } else if (board.checkForTie(playerOneMarker, playerTwoMarker)) {
             board.printBoard();
             console.log("TIE");
             return;
@@ -213,53 +238,48 @@ playerOneMarker = "X", playerTwoMarker = "O") {
         printNewRound();
     };
 
+    const addCellClick = () => {
+        const grid = document.querySelectorAll(".cell");
+        grid.forEach(newDiv => {
+            newDiv.addEventListener("click", () => {
+                if (newDiv.innerHTML === "") {
+                    newDiv.innerHTML = getActivePlayer().marker;
+                    board.placeMarker(newDiv.getAttribute("row"), newDiv.getAttribute("column"), getActivePlayer().marker);
+                } else {
+                    console.log("nope");
+                }
+                playRound();
+            });
+        });
+    }
     // print intial round
     printNewRound();
+    board.createBoard(grid);
+    addCellClick();
+
+
 
     return {playRound};
 }
 
 
-
-
-
-flag = false;
-// outer loop to keep game going and have the ability to play again
- tic_tac_toe: while (true) {
-    // runs after initial loop to check if player wants to play again
-    if (flag) {
-        // enter Y to play again otherwise break out of loop and end game
-        let playAgainQuestion = prompt("Would you like to play again Y/N: ");
-        if (playAgainQuestion !== "Y" || playAgainQuestion !== "y") {
-            break tic_tac_toe;
-        }
-    }
-
+function PlayGame() {
     // get players names and markers
-    // const player1name = prompt("Enter name for player 1: ");
-    // const player1marker = prompt("Enter marker symbol for player 1: ");
-    // const player2name = prompt("Enter name for player 2: ");
-    // const player2marker = prompt("Enter marker symbol for player 2: ");
-
-    // // start new game with user input above
-    // const newGame = GameController(player1name, player2name, player1marker, player2marker);
-    const newGame = GameController();
-
-    // inner loop to play individual game and exit when player wins
-    let round = 0;
-    individualGame: while (round < 9) {
-        // user input for row and column
-        let playerMoveRow = prompt("Enter a row 0 - 2: ");
-        let playerMoveColumn = prompt("Enter a column 0 - 2: ");
-        // check if game is won and break out of inner loop
-        if (newGame.playRound(playerMoveRow, playerMoveColumn, round)) {
-            break individualGame;
-        }
-        round++;
-    }
-    flag = true;
+    const player1name = prompt("Enter name for player 1: ");
+    const player1marker = prompt("Enter marker symbol for player 1: ");
+    const player2name = prompt("Enter name for player 2: ");
+    const player2marker = prompt("Enter marker symbol for player 2: ");
+    GameController(player1name, player2name, player1marker, player2marker);
 }
+
+const play_button = document.getElementById("play_button");
+play_button.addEventListener("click", () => {
+    PlayGame();
+});
+
 
 
 // to fix
 // check user input for name and marker (no repeats, no empty input)
+// clear board function at beggining of PlayGame()
+// make a pop up for winner/tie

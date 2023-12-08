@@ -43,4 +43,10 @@ div {
     display: flex;
     justify-content: center;
     align-items: center;
+    font-size: 45px;
+}
+
+#play_button {
+    position: relative;
+    right: 250px;
 }
