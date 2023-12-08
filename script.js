@@ -221,23 +221,27 @@ playerOneMarker = "X", playerTwoMarker = "O") {
     // start game round
     // call placeMarker and get input for row and column
     const playRound = () => {
+
         // check for winner after each marker is placed
         // return true to indicated winner and break out of while loop ending the game
         if (board.checkForWinner(getActivePlayer().marker)) {
             board.printBoard();
             console.log("WINNER");
-            return;
+            alert(`${getActivePlayer().name} wins!`);
+            PlayGame();
         } else if (board.checkForTie(playerOneMarker, playerTwoMarker)) {
             board.printBoard();
             console.log("TIE");
-            return;
+            alert("TIE");
+            PlayGame();
         }
 
         // switch player turn each round and print the new board
         switchPlayerTurn();
         printNewRound();
     };
-
+    // add placeMarker() and playRound() functionality to each board cell
+    // also check if each cell is empty to place a marker otherwise skip player turn
     const addCellClick = () => {
         const grid = document.querySelectorAll(".cell");
         grid.forEach(newDiv => {
@@ -254,6 +258,7 @@ playerOneMarker = "X", playerTwoMarker = "O") {
     }
     // print intial round
     printNewRound();
+    // create the board and add placeMarker and playRound functionality to each cell
     board.createBoard(grid);
     addCellClick();
 
@@ -264,14 +269,29 @@ playerOneMarker = "X", playerTwoMarker = "O") {
 
 
 function PlayGame() {
+    // clear DOM of board for new game to create a new board
+    const container = document.getElementById("board_grid");
+    const cells = container.querySelectorAll(".cell");
+    cells.forEach(cell => {
+        container.removeChild(cell);
+    })
+
+
     // get players names and markers
-    const player1name = prompt("Enter name for player 1: ");
+    const player1name = prompt("Enter name for player 1 (enter blanks for either name to end game): ");
     const player1marker = prompt("Enter marker symbol for player 1: ");
     const player2name = prompt("Enter name for player 2: ");
     const player2marker = prompt("Enter marker symbol for player 2: ");
-    GameController(player1name, player2name, player1marker, player2marker);
+    // end the game by leaving the name blank for either player
+    if ((player1name === "") || (player2name === "")) {
+        alert("Goodbye!");
+    } else {
+        alert("Don't click a square with marker already inside. You WILL forfeit your turn!!")
+        GameController(player1name, player2name, player1marker, player2marker);
+    }
 }
 
+// press play button to PlayGame() and start a new round
 const play_button = document.getElementById("play_button");
 play_button.addEventListener("click", () => {
     PlayGame();
@@ -280,6 +300,3 @@ play_button.addEventListener("click", () => {
 
 
 // to fix
-// check user input for name and marker (no repeats, no empty input)
-// clear board function at beggining of PlayGame()
-// make a pop up for winner/tie
